@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//このスクリプトではプレイヤーの移動処理等を扱っています
+
 public class movetest4 : MonoBehaviour
 {
     public AudioClip coinSE; //効果音系変数
@@ -39,8 +41,7 @@ public class movetest4 : MonoBehaviour
         animCon = GetComponent<Animator>();
         aud = GetComponent<AudioSource>();
         director = GameObject.Find("GameDirector");
-        pare = GameObject.Find("runba").transform;    
-
+        //pare = GameObject.Find("runba").transform;    
     }
 
     // Update is called once per frame
@@ -57,6 +58,11 @@ public class movetest4 : MonoBehaviour
             aud.Stop();
             animCon.SetBool("iswalk", false);  //  Runモーションしない
         }
+
+        /*if (Input.GetKeyDown(KeyCode.P))
+        {
+            FadeManager.Instance.LoadScene("RacePlayerSelect", 2.0f);
+        }*/
 
         else //  テンキーや3Dスティックの入力（GetAxis）がゼロではない時の動作
         {
@@ -98,10 +104,10 @@ public class movetest4 : MonoBehaviour
     {
         if (other.gameObject.tag == "coin")
         {
-            director.GetComponent<GameDirector>().GetCoin();
-            aud.PlayOneShot(coinSE);
+            director.GetComponent<GameDirector>().GetCoin(); //コインと衝突したら100円プラスする
+            aud.PlayOneShot(coinSE); //コインSE再生
             Debug.Log("coin get");
-            Destroy(other.gameObject);
+            Destroy(other.gameObject); //コインを取得後は削除
         }
 
     }

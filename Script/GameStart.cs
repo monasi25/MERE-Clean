@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//タイトル画面からメインゲームシーンに遷移させるクラス
 public class GameStart : MonoBehaviour
 {
     private AudioSource aud;
@@ -15,6 +16,7 @@ public class GameStart : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //スペースキーでメインゲームシーンに遷移
         if (Input.GetKeyDown(KeyCode.Space))
         {
             aud.PlayOneShot(clip1);

@@ -10,54 +10,39 @@ public class cleaner_Move : MonoBehaviour
     public kabenobori1 kabenobori1;
 
     [SerializeField] CleanerSound CleanerSound;
-
-    public AudioSource audi;
-    public AudioSource audi2;
+    
+    [SerializeField]
+    private ParticleSystem Trail; //くるくるパーティクルが入る
 
     [SerializeField]
-    private AudioClip hassan;
+    private ParticleSystem suikomi; //吸引パーティクルが入る
 
     [SerializeField]
-    private AudioClip syuusoku;
+    private GameObject suiko; //吸引パーティクルのオブジェクト
 
     [SerializeField]
-    private AudioClip kirikae;
+    private GameObject parti; //くるくるパーティクルのオブジェクト
 
     [SerializeField]
-    private AudioClip soujityuu;
+    private ParticleSystem Smoke; //スモークパーティクル
 
     [SerializeField]
-    private ParticleSystem Trail;
+    private GameObject smok; //スモークパーティクルオブジェクト
 
-    [SerializeField]
-    private ParticleSystem suikomi;
+    public Transform onG; //地面につけるときの掃除機の位置
+    public Transform taikiG; //掃除機を地面につけずに持っている時の掃除機の位置
 
-    [SerializeField]
-    private GameObject suiko;
-
-    [SerializeField]
-    private GameObject parti;
-
-    [SerializeField]
-    private ParticleSystem Smoke;
-
-    [SerializeField]
-    private GameObject smok;
-
-    public Transform onG;
-    public Transform taikiG;
-
-    public bool flag = false;
+    public bool flag = false; //Souji_Managerに掃除機が地面についているかどうかを知らせるための変数
 
     private Animator anim;
 
-    private int count = -1;
+    private int count = -1; //掃除機を取り出した時に処理の順番を表す変数
 
-    public GameObject so;
+    public GameObject so; //掃除機オブジェクトが入る変数
 
-    private float i = 0;
+    private float i = 0; //for文用
 
-    private bool once = false;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -73,17 +58,21 @@ public class cleaner_Move : MonoBehaviour
 
     private void SwitchON()
     {
+        //掃除機を使用中の処理
         if (cleanerswitch.Cleaners == true)
         {
+            //以下基本的に上から順番に処理されていく
             switch (count)
             {
+                //掃除機を取り出す処理
                 case -1:
                     StartCoroutine("wait");
                     StartCoroutine("toridasu");                   
                     //audi.PlayOneShot(hassan);
                     break;
 
-                case 0:                                             //ソージキを構える最初の処理                   
+                //ソージキを構えるための最初の処理 
+                case 0:                                                            
                     anim.SetBool("isCleaner_taiki", true);
                     movetest4.idoSpeed = 0.27f;
                     so.transform.position = taikiG.position;        //ソージキのポジションとrotationを待機ポジに
@@ -91,29 +80,32 @@ public class cleaner_Move : MonoBehaviour
                     count = 1;                                      //countを1にしてcase1に遷移
                     break;
 
-                case 1:                                             //左クリックで掃除モード  待機モーション中は歩行と待機のみ
-                    movetest4.idoSpeed = 0.27f;
+                //掃除機を地面につけず持っている時の処理
+                case 1:                                             
+                     movetest4.idoSpeed = 0.27f;  //掃除機を持っている時は移動速度をゆっくりに
 
+                    //左クリックで掃除機を地面につける処理を行う
                     if ((Input.GetMouseButtonDown(0)))
                     {
                         //audi.PlayOneShot(kirikae);
-                        anim.SetBool("isCleaner_IDLE", true);
-                        so.transform.position = onG.position;       //ソージキのポジションとrotationを構えポジに
+                        anim.SetBool("isCleaner_IDLE", true);   //掃除機持ち待機状態
+                        so.transform.position = onG.position;       //ソージキのポジションとrotationを構えるポジションに
                         so.transform.rotation = onG.rotation;
-                        movetest4.idoSpeed = 0.2f;                  //移動速度を0.2にして掃除をしてる感を出す
-                        flag = true;
-                        suiko.SetActive(true);
-                        suikomi.Play();
-                        smok.SetActive(true);
+                        movetest4.idoSpeed = 0.2f;                  //移動速度をさらに遅くして掃除をしてる感を出す
+                        flag = true; //掃除機を地面につけた事をSouji_Managerクラスに伝える
+                        suiko.SetActive(true); //吸い込みパーティクルオブジェクトを有効化
+                        suikomi.Play(); //再生
+                        smok.SetActive(true); //掃除機の後ろの排気口から煙
                         Smoke.Play();
-                        CleanerSound.BGM_Play();
+                        CleanerSound.BGM_Play(); //掃除中はBGMを再生
                         //audi2.Play();
                         count = 2;                                  //countを2にしてcase2に遷移
                     }
 
-                    else if (movetest4.on == true)
+                    //プレイヤーが掃除機を地面につけずに移動している時に処理される
+                    else if (movetest4.on == true) 
                     {
-                        anim.SetBool("isCleaner_taikiwalk", true);
+                        anim.SetBool("isCleaner_taikiwalk", true); //掃除機を持って移動するアニメーション
                     }
 
                     else
@@ -123,10 +115,11 @@ public class cleaner_Move : MonoBehaviour
 
                     break;
 
+                //掃除機が地面についている状態
                 case 2:
                     if (movetest4.on == true)
                     {
-                        anim.SetBool("isCleaner_IDO", true);
+                        anim.SetBool("isCleaner_IDO", true); //掃除機を地面につけて移動するアニメーション
                     }
 
                     if (movetest4.on == false)
@@ -134,26 +127,28 @@ public class cleaner_Move : MonoBehaviour
                         anim.SetBool("isCleaner_IDO", false);
                     }
 
+                    //左クリックすると掃除機を地面から離す処理
                     if ((Input.GetMouseButtonDown(0)))
                     {
                         //audi2.Stop();
                         //audi.PlayOneShot(kirikae);
                         anim.SetBool("isCleaner_IDLE", false);
-                        so.transform.position = taikiG.position;
+                        so.transform.position = taikiG.position; //掃除機を地面から離した状態の態勢にポジションを変更
                         so.transform.rotation = taikiG.rotation;
-                        movetest4.idoSpeed = 0.5f;
-                        flag = false;
+                        
+                        flag = false; //掃除機が地面から離れた事をSouji_Managerに伝える
                         suiko.SetActive(false);
                         smok.SetActive(false);
                         CleanerSound.BGM_Stop();
-                        count = 1;
+                        count = 1; //上に戻る
                     }
 
                     break;
             }
         }
 
-        if ((cleanerswitch.co == 1))                                //OFF処理
+        //OFF処理
+        if ((cleanerswitch.co == 1))                                
         {
             //audi.PlayOneShot(syuusoku);
             parti.SetActive(true);
@@ -170,11 +165,13 @@ public class cleaner_Move : MonoBehaviour
             flag = false;
             kabenobori1.enabled = true;
             CleanerSound.BGM_Stop();
-            count = -1;
+            count = -1; //countを初期状態に戻す
         }
     }
 
-    private IEnumerator toridasu()                                  //localscaleを0.01秒に一回0.01加算してアイテムを取り出している感を演出　　下は逆にしまう演出
+
+    //localscaleを0.01秒に一回0.01加算してアイテムを取り出している感を演出
+    private IEnumerator toridasu()                                  
     {
         for (i = 0; i < 0.07f; i += 0.01f)
         {
@@ -183,6 +180,7 @@ public class cleaner_Move : MonoBehaviour
         }
     }
 
+    //上の逆版
     private IEnumerator simau()
     {
         for (i = 0.07f; i >= 0f; i -= 0.01f)
@@ -192,12 +190,15 @@ public class cleaner_Move : MonoBehaviour
         }
     }
 
+    //掃除機を取り出す際のエフェクト・プレイヤーのアニメーションを行うコルーチン
     private IEnumerator wait()
     {
-        parti.SetActive(true);
-        Trail.Play();
-        anim.SetBool("isCleaner_ONOFF", true);       
-        yield return new WaitForSeconds(0.5f);       
+        parti.SetActive(true); //パーティクルオブジェクトを有効化 オブジェクトの位置は既にプレイヤーの手元に固定されている
+        Trail.Play();  //有効化したパーティクルを再生 くるくるした感じのが再生される
+        anim.SetBool("isCleaner_ONOFF", true); //プレイヤーの掃除機を取り出すアニメーション再生
+       
+        //即座にcount=0に移行すると取り出すアニメーションの再生が終了する前に次のアニメーションが再生されてしまうため少し待つ
+        yield return new WaitForSeconds(0.5f);  
         count = 0;
     }
 

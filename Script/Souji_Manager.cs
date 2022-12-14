@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//掃除中にどのホコリ・ヨゴレに触れたかを判定するクラス
+
 public class Souji_Manager : MonoBehaviour
 {
-    public bool[] Hokori_Detection;
-    public bool[] Yogore_Detection;
+    public bool[] Hokori_Detection;     //ホコリにノズルが触れた時のフラグ用bool変数
+    public bool[] Yogore_Detection;     //ヨゴレにノズルが触れた時のフラグ用bool変数
+    public bool[] Hokori_DestroyNum;    //既に掃除完了したホコリの番号のフラグを立てる
+    public bool[] Yogore_DestoryNum;    //同様
+
     public bool Ground_Detection;
 
     private float Nozzle_distance = 1f;
 
-    public GameObject Hokori_Parent;
-    public GameObject[] Hokori_Child;
-    public GameObject Yogore_Parent;
-    public GameObject[] Yogore_Child;
+    public GameObject Hokori_Parent;    //全てのホコリオブジェクトをまとめる親オブジェクト
+    public GameObject[] Hokori_Child;   //各ホコリオブジェクト
+    public GameObject Yogore_Parent;    //同様
+    public GameObject[] Yogore_Child;   //同様
 
     [SerializeField] private GameObject NozzleObj;
 
@@ -23,14 +28,23 @@ public class Souji_Manager : MonoBehaviour
 
     private void Awake()
     {
-        Hokori_Child = new GameObject[Hokori_Parent.transform.childCount];
-        Hokori_Detection = new bool[Hokori_Parent.transform.childCount];
+        Hokori_Child = new GameObject[Hokori_Parent.transform.childCount];  //配列のサイズを子オブジェクトの数だけ確保
+        Hokori_Detection = new bool[Hokori_Parent.transform.childCount];    
+        Hokori_DestroyNum = new bool[Hokori_Parent.transform.childCount];
         
-        Yogore_Child = new GameObject[Yogore_Parent.transform.childCount];
+        Yogore_Child = new GameObject[Yogore_Parent.transform.childCount];  
         Yogore_Detection = new bool[Yogore_Parent.transform.childCount];
+        Yogore_DestoryNum = new bool[Yogore_Parent.transform.childCount];
 
+        //メインシーンが読み込まれた初回に一度だけValueSaveクラスのヨゴレとホコリの状態を保存する配列のサイズを確保
+        if(ValueSave.Once == false)
+        {
+            ValueSave.yogore_State_save = new bool[Yogore_Parent.transform.childCount];
+            ValueSave.hokori_State_save = new bool[Hokori_Parent.transform.childCount];
+            ValueSave.Once = true;
+        }
 
-
+        //配列に各ホコリオブジェクトを代入
         for(int i = 0; i < Hokori_Parent.transform.childCount; i++)
         {
             Hokori_Child[i] = Hokori_Parent.transform.GetChild(i).gameObject;
@@ -64,11 +78,12 @@ public class Souji_Manager : MonoBehaviour
                         return;
                     }
                     
-                    for(int i = 0; i < Hokori_Parent.transform.childCount; i++) //当たったホコリが配列の何番目のホコリかチェック
+                    for(int i = 0; i < Hokori_Parent.transform.childCount; i++)
                     {
-                        if(hit.collider.gameObject == Hokori_Child[i])
+                        //当たったホコリが配列の何番目のホコリかチェック
+                        if (hit.collider.gameObject == Hokori_Child[i])
                         {
-                            Hokori_Detection[i] = true;
+                            Hokori_Detection[i] = true; //ホコリ検知フラグを立てる
                         }
 
                         else
@@ -87,7 +102,7 @@ public class Souji_Manager : MonoBehaviour
                     {
                         if (hit.collider.gameObject == Yogore_Child[i])
                         {
-                            Yogore_Detection[i] = true;
+                            Yogore_Detection[i] = true; //ヨゴレ検知フラグを立てる
                         }
 
                         else
@@ -99,5 +114,25 @@ public class Souji_Manager : MonoBehaviour
             }
         }
     }
+
+    //他のシーンからメインシーンに遷移した時、既に掃除完了しているホコリ・ヨゴレを無効化する関数 GameDirectorクラスから呼び出す
+    public void DestroyFn()
+    {
+        for (int i = 0; i < Hokori_Parent.transform.childCount; i++)
+        {
+            if (Hokori_DestroyNum[i] == true)
+            {
+                Hokori_Child[i].SetActive(false);
+            }
+        }
+
+        for (int i = 0; i < Yogore_Parent.transform.childCount; i++)
+        {
+            if (Yogore_DestoryNum[i] == true)
+            {
+                Yogore_Child[i].SetActive(false);
+            }
+        }
+    } 
 }
 

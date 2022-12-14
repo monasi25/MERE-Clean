@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//掃除機に関連する効果音・BGMを扱うクラス
+
 public class CleanerSound : MonoBehaviour
 {
     [SerializeField] private AudioSource Cleaner_Sound;
     [SerializeField] private AudioSource Cleaner_BGM;
     [SerializeField] private AudioClip Toridasu;
     [SerializeField] private AudioClip Simau;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
+    
+    
     public void Toridasu_Sound()
     {
         Cleaner_Sound.PlayOneShot(Toridasu);
@@ -33,9 +31,6 @@ public class CleanerSound : MonoBehaviour
     {
         Cleaner_BGM.Stop();
     }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
+   
 }

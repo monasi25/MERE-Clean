@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//壁を登るための一連の処理が記述されています
 public class kabenobori1 : MonoBehaviour
 {
     
@@ -9,13 +10,14 @@ public class kabenobori1 : MonoBehaviour
     private RaycastHit hit;
     public GameObject shootpoint;
     private CharacterController Ccon;
-    public float speed = 0.2f;  
+    public float speed = 0.2f;      //壁を登る速度
     private Animator anim;
-    Vector3 movedirection;
-    private float Angle;
+    Vector3 movedirection;  //登る方向
+    private float Angle;    //壁との角度調整用変数
     public bool down = false;
     [SerializeField] private GameDirector GameDirector;
 
+    //壁登りの現在の状態を表すenum
     enum WallUp_State
     {
         wait,
@@ -38,6 +40,7 @@ public class kabenobori1 : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, distance))                                        //Rayがdistanceの範囲で何かに当たったら呼ばれる
         {
+            //タグに応じてAngleを変更して壁とプレイヤーを向かい合わせにする
             if (hit.collider.tag == "upok")                                                 //登れる障害物はupokのタグをつける
             {
                 Angle = 90f;
@@ -55,7 +58,7 @@ public class kabenobori1 : MonoBehaviour
                 state = WallUp_State.wait;
                 Ccon.enabled = false;
                 anim.applyRootMotion = true;                                                //applyRootMotionをtrueにしアニメーションの動きに合わせてオブジェクトを移動させる（普段はオフ）
-                anim.SetBool("climb", true);
+                anim.SetBool("climb", true);                                                //壁よじ登りアニメーション
                 Invoke("Climbs", 3.5f);                                                     //アニメーションが再生終了するまで待機してから壁登り解除処理を行う
             }
 
@@ -71,6 +74,7 @@ public class kabenobori1 : MonoBehaviour
     {
         switch (state)
         {
+            //登れる壁の前に立っている状態
             case WallUp_State.wait:
                 GameDirector.nabi(2);
                 if (Input.GetKeyDown(KeyCode.E))                                    //誤作動防止のため他の移動系スクリプト全てをfalseにする
@@ -80,6 +84,7 @@ public class kabenobori1 : MonoBehaviour
                 }
                 break;
 
+            //Fキーを押して最初に行われる処理
             case WallUp_State.standby:                                              //壁に飛びつく・体の向きを変更する等の準備を行う
                 anim.SetBool("iswall", true);
                 transform.rotation = hit.collider.gameObject.transform.rotation;    //ここで壁のrotationと同じにする
@@ -88,14 +93,16 @@ public class kabenobori1 : MonoBehaviour
                 state = WallUp_State.move;
                 break;
 
+            //壁にしがみついている間に行われる処理
             case WallUp_State.move:                                                 //壁を移動する処理を行う
                 GameDirector.nabi(3);
                 if ((Input.GetKey(KeyCode.A)) || (Input.GetKey(KeyCode.D)))
                 {
+                    //各アニメーション
                     anim.SetBool("wallup", false);
                     anim.SetBool("walldown", false);
                     anim.SetBool("wallside", true);
-                    movedirection = new Vector3(Input.GetAxis("Horizontal"), 0, 0);
+                    movedirection = new Vector3(Input.GetAxis("Horizontal"), 0, 0); //横方向の移動
                 }
 
                 else if ((Input.GetKey(KeyCode.W)) || (Input.GetKey(KeyCode.S)))    //elseにしているのはななめ移動を禁止するため
@@ -114,7 +121,7 @@ public class kabenobori1 : MonoBehaviour
                         anim.SetBool("walldown", true);
                         down = true;
                     }
-                    movedirection = new Vector3(0, Input.GetAxis("Vertical"), 0);
+                    movedirection = new Vector3(0, Input.GetAxis("Vertical"), 0);   //縦方向の移動
                 }
 
                 else                                                                //入力がされていない時のデフォルト状態
@@ -138,11 +145,12 @@ public class kabenobori1 : MonoBehaviour
 
     void Move()
     {
-        movedirection = transform.TransformDirection(movedirection);
+        movedirection = transform.TransformDirection(movedirection);    //ローカルからワールド座標に変換
         movedirection *= speed;
         Ccon.Move(movedirection * Time.deltaTime);
     }
 
+    //壁登りを解除する時に呼ぶ関数
     void WallUp_Kaijo()
     {
         anim.SetBool("iswalldefo", false);
@@ -150,21 +158,8 @@ public class kabenobori1 : MonoBehaviour
         anim.SetBool("wallup", false);
         anim.SetBool("walldown", false);
         anim.SetBool("wallside", false);
-        GameDirector.FunctionState(GameDirector.Fn_State = GameDirector.Function_state.ON);
+        GameDirector.FunctionState(GameDirector.Fn_State = GameDirector.Function_state.ON); //プレイヤーの状態を通常状態に
         state = WallUp_State.wait;
-    }
-
-    void Climbs()
-    {
-        anim.applyRootMotion = false;
-        Ccon.enabled = true;
-        anim.SetBool("iswalldefo", false);
-        anim.SetBool("iswall", false);
-        anim.SetBool("wallup", false);
-        anim.SetBool("walldown", false);
-        anim.SetBool("wallside", false);
-        anim.SetBool("climb", false);
-        GameDirector.FunctionState(GameDirector.Fn_State = GameDirector.Function_state.ON);
     }
 
 }

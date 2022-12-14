@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//オプション画面でBGMや効果音を調整するためのクラス
 public class SoundManagement : MonoBehaviour
 {
     [SerializeField] private AudioSource koukaon1, koukaon2;

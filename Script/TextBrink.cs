@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//タイトル画面のテキストを点滅させるためのクラス
 public class TextBrink : MonoBehaviour
 {
     private Text Text;

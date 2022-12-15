@@ -150,6 +150,20 @@ public class kabenobori1 : MonoBehaviour
         Ccon.Move(movedirection * Time.deltaTime);
     }
 
+    //壁を登りきった時に呼ばれる関数
+    void Climbs()
+    {
+        anim.applyRootMotion = false;
+        Ccon.enabled = true;
+        anim.SetBool("iswalldefo", false);
+        anim.SetBool("iswall", false);
+        anim.SetBool("wallup", false);
+        anim.SetBool("walldown", false);
+        anim.SetBool("wallside", false);
+        anim.SetBool("climb", false);
+        GameDirector.FunctionState(GameDirector.Fn_State = GameDirector.Function_state.ON);
+    }
+
     //壁登りを解除する時に呼ぶ関数
     void WallUp_Kaijo()
     {
